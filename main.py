@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QPushButton, QVBoxLayout, QHBoxLayout,
     QWidget, QLabel, QStackedWidget, QFrame, QComboBox, QScrollArea
 )
-from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtGui import QFont, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QSize
 import numpy as np
 import matplotlib.pyplot as plt
@@ -112,15 +112,33 @@ class MainWindow(QMainWindow):
                 padding: 0px;
                 border-radius: 8px;
             }}
-        """)
-
+                """)
         navbar_layout = QVBoxLayout()
 
-        logo = QLabel("SMATH")
-        logo.setFont(QFont("Arial", 18, QFont.Bold))
-        logo.setAlignment(Qt.AlignCenter)
-        logo.setStyleSheet(f"color: {current_theme['navbar']['text']};")
-        navbar_layout.addWidget(logo)
+        header_layout = QHBoxLayout()
+
+        logo_image = QLabel()
+        if (idx_theme == 1):
+            pixmap = QPixmap('./Images/logo.png')
+        else:
+            pixmap = QPixmap('./Images/logo_dark.png')
+
+        scaled_pixmap = pixmap.scaled(50, 50, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        logo_image.setPixmap(scaled_pixmap)
+        logo_image.setAlignment(Qt.AlignLeft)
+
+        logo_text = QLabel("SMATH")
+        logo_text.setFont(QFont("Arial", 18, QFont.Bold))
+        logo_text.setAlignment(Qt.AlignCenter)
+        logo_text.setStyleSheet(f"color: {current_theme['navbar']['text']};")
+
+        header_layout.addWidget(logo_image)
+        header_layout.addWidget(logo_text)
+        header_layout.setAlignment(Qt.AlignLeft)
+        header_layout.setSpacing(10)
+
+        navbar_layout.addLayout(header_layout)
+        # navbar_layout.addWidget(logo)
 
         # Reset all button objects
         for item in layoutSoftware:
@@ -208,13 +226,10 @@ class MainWindow(QMainWindow):
     def apply_theme(self):
         theme = current_theme
         
-        # Main window styling
         self.setStyleSheet(f"background-color: {theme['background']};")
         
-        # Recreate navbar with new theme
         self.create_navbar(True)
         
-        # Options frame styling
         options_style = f"""
             QPushButton {{
                 background-color: {theme['navbar']['buttonBackground']};
@@ -230,7 +245,6 @@ class MainWindow(QMainWindow):
         """
         self.options_frame.setStyleSheet(options_style)
 
-        # Program frame styling
         self.program_frame.setStyleSheet(f"""
             QLineEdit {{
                 background-color: {theme['program']['input']['background']};
@@ -267,11 +281,9 @@ class MainWindow(QMainWindow):
             }}
         """)
 
-        # Update text header if it exists
         if hasattr(self, 'text_header_current_page_layout1') and self.text_header_current_page_layout1:
             self.create_text_header(self.options_layout, 'noEdit')
 
-        # Recreate current view
         for item in layoutSoftware:
             if item['active']:
                 self.show_options(item['content'])
